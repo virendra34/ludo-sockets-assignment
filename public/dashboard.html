@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+        integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <title>Ludo App</title>
+</head>
+
+<body>
+    <div class="join-container">
+        <header class="join-header">
+            <h1><i class="fas fa-smile"></i> Ludo King</h1>
+        </header>
+        <main class="join-main">
+            <form id="lobby-form" type="post">
+                <div class="form-control">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" placeholder="Enter lobby name..." required />
+                </div>
+                <button type="submit" class="btn">Create</button>
+                <div class="form-control">
+                    <br />
+                    Or Join an existing lobby
+                </div>
+                <div id="lobby-div">
+
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+<script>
+    let token = localStorage.getItem('ludo_token');
+    if (!token) {
+        console.log('token not null')
+        window.location.href = "/static";
+        // return false;
+    }
+    document.getElementById('lobby-form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        let name = document.getElementById('name').value;
+        let url = "http://localhost:8000/api/lobby/create";
+        fetch(url, {
+            method: 'post',
+            headers: {
+                "Content-Type": 'application/json',
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ name })
+        }).then(async (res) => {
+            let data = await res.json();
+            alert(data.message);
+        }).catch(err => {
+
+        });
+    });
+    function fetchLobby() {
+        let url = "http://localhost:8000/api/lobby";
+        fetch(url, {
+            method: 'get',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
+        }).then(async (res) => {
+            let data = await res.json();
+            renderLobby(data.lobby);
+        }).catch(err => {
+
+        });
+    }
+    fetchLobby();
+    function renderLobby(lobby) {
+        if (lobby.length) {
+            let lobbyHtml = "<ul>";
+            lobby.forEach((el, i) => {
+                lobbyHtml += `<li><a href="lobby?lobbyId=${el._id}">Click here to join ${el.name}</a></li>`;
+            });
+            lobbyHtml += "</ul>";
+            document.getElementById("lobby-div").innerHTML = lobbyHtml;
+        }
+    }
+</script>
+
+</html>
