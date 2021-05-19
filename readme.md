@@ -9,3 +9,6 @@ npm install
 
 # postman
 postman folder contains the postman api collection
+
+# run
+Type node server.js then navigate to http://localhost:8000/static in your browser
