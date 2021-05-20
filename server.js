@@ -2,6 +2,7 @@
 require("dotenv").config();
 const User = require('./models/User');
 const Lobby = require('./models/Lobby');
+const PlayerMoves = require('./models/PlayerMoves');
 // bringin jsonwebtoken
 const jwt = require('jsonwebtoken');
 // setup express
@@ -77,6 +78,12 @@ io.on('connection', async (socket) => {
         socket.join(lobbyId);
         console.log('roll dice event triggered', lobbyId);
         const diceVal = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+        // record player moves in db
+        const playerMoves = new PlayerMoves({
+            userId: socket.userId,
+            diceVal
+        });
+        await playerMoves.save();
         const msg = `${user.name} got ${diceVal} on dice`;
         io.to(lobbyId).emit('diceVal', { diceVal, msg });
     });
